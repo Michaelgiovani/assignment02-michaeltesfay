@@ -1,68 +1,47 @@
-import { test, expect } from '@playwright/test';
-import { faker } from '@faker-js/faker'
-import { title } from 'process';
+import { test, expect, APIResponse } from '@playwright/test';
+import { APIHelper } from './apiHelpers';
+import { generateRoomsData } from './testData';
+import { stringify } from 'querystring';
 
 
-test.describe("Test suite backend v1", () => {
-  test('Test case 01 - Get all posts', async ({ request }) => {
-    const getPostResponse = await request.get("http://localhost:3000/posts");
-    expect (getPostResponse.ok()).toBeTruthy();
-    expect (getPostResponse.status()).toBe(200);
-  });
+const BASE_URL = `${process.env.BASE_URL}`;
 
-  test('Test case 02 - Create posts', async ({ request }) => {
-    const payload = {
-      title: faker.lorem.sentence(),
-      views:faker.number.int({min:10, max:100})
-    }
-
-    const CreatePostResponse = await request.post("http://localhost:3000/posts", {
-      data:JSON.stringify(payload),
-    });
-   expect (CreatePostResponse.ok()).toBeTruthy();
- 
-  
-  expect (await CreatePostResponse.json()).toMatchObject(
-    expect.objectContaining({
-      title: payload.title,
-      views: payload.views,
-    })
-  )
-  
-  const getPostResponse = await request.get("http://localhost:3000/posts");
-  expect (getPostResponse.ok()).toBeTruthy();
-  
-  const allPost = await getPostResponse.json();
-  expect(allPost).toEqual(
-    expect.arrayContaining([
-      expect.objectContaining({
-        title: payload.title,
-        views: payload.views,
-      })
-    ])
-  )
-
-  });
-
-    test('Test case 03 - Delete Post by ID', async ({ request }) => {
-      .
-      const getPostResponse = await request.get("http://localhost:3000/posts");
-     expect (getPostResponse.ok()).toBeTruthy(); //Assertion
-     const allPosts = await getPostResponse.json();
-     expect(allPosts.length).toBeGreaterThan(3);
+test.describe('Test Suite Hotel', () => {
+    let apiHelper: APIHelper;
     
-     const lastButOnePostID = allPosts[allPosts.length - 2].id;
-     
-     
-     const deletePostResponse = await request.delete(`http://localhost:3000/posts/${lastButOnePostID}`);
-     expect (deletePostResponse.ok()).toBeTruthy();
-
-     
-     const deletedElementResponse = await request.get(`http://localhost:3000/posts/${lastButOnePostID}`);
-     expect (deletedElementResponse.status()).toBe(404);
+    // Logga in innan alla tester körs
+    test.beforeAll(async ({ request }) => {
+        apiHelper = new APIHelper(BASE_URL);
+        const login = await apiHelper.login(request);
+        expect(login.ok()).toBeTruthy();
+        expect(login.status()).toBe(200);
     });
-})
 
+    // Test för att hämta alla rum
+    test('Get all Rooms', async ({ request }) => {
+        const getAllRooms = await apiHelper.getAllRooms(request);
+        expect(getAllRooms.ok()).toBeTruthy();
+        expect(getAllRooms.status()).toBe(200);
+    });
 
+    test('Update Room Information', async ({ request }) => {
+        const payload = generateRoomsData(); 
+        const updateRoom = await apiHelper.updateRoom(request, payload);
+        expect(updateRoom.ok()).toBeTruthy();
+        expect (updateRoom.status()).toBe(200);
+        expect.objectContaining({
+            number: payload.number,
+            floor: payload.floor,
+            price: payload.price,
+            id: payload.id
+    });
 
+});
 
+test('Delete Room By ID', async ({ request }) => {
+    const deleteRoomById = await apiHelper.deleteRoomById(request);
+    expect(deleteRoomById.ok()).toBeTruthy();
+    expect (deleteRoomById.status()).toBe(200);
+});
+
+});

@@ -1,9 +1,8 @@
 {
-  "name": "playwright-apirequestcontext",
+  "name": "assignment02-valeriaponomareva-schaniakaradaghi",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "serve": "npx json-server db.json",
     "ui-mode": "npx playwright test --ui"
   },
   "keywords": [],
@@ -11,11 +10,11 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "@faker-js/faker": "^9.0.2",
+    "@faker-js/faker": "^9.0.3",
     "@playwright/test": "^1.47.2",
     "@types/node": "^22.6.1"
   },
   "dependencies": {
-    "json-server": "^1.0.0-beta.2"
+    "dotenv": "^16.4.5"
   }
 }
